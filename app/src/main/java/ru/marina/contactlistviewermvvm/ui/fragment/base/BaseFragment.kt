@@ -44,13 +44,13 @@ abstract class BaseFragment<VB : ViewBinding> : Fragment() {
 
     protected fun startProgress() {
         if (swipeRefreshLayout?.isRefreshing == false) {
-            contentLayout?.hideChildrenViews()
             swipeRefreshLayout?.isEnabled = false
 
             val context = context
             if (progressBarContainer != null || context == null) {
                 return
             }
+            contentLayout?.hideChildrenViews()
             val progressBar = ProgressBar(context)
             progressBar.isIndeterminate = true
             progressBarContainer = FrameLayout(context).apply {
