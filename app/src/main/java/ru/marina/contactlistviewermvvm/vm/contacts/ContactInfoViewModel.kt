@@ -6,6 +6,7 @@ import io.reactivex.observers.DisposableSingleObserver
 import ru.marina.contactlistviewermvvm.domain.model.Contact
 import ru.marina.contactlistviewermvvm.domain.usecase.ContactByIdUseCase
 import ru.marina.contactlistviewermvvm.ui.Event
+import ru.marina.contactlistviewermvvm.ui.SingleLiveEvent
 import ru.marina.contactlistviewermvvm.ui.ViewEffect
 import ru.marina.contactlistviewermvvm.ui.ViewEvent
 import ru.marina.contactlistviewermvvm.vm.base.BaseViewModel
@@ -16,14 +17,14 @@ class ContactInfoViewModel @Inject constructor(
     private val contactByIdUseCase: ContactByIdUseCase,
 ) : BaseViewModel() {
 
-    val contactState: MutableLiveData<Event<Contact>> = MutableLiveData()
-    val viewEffect: MutableLiveData<Event<ViewEffect>> = MutableLiveData()
+    val contactState = MutableLiveData<Event<Contact>>()
+    val viewEffect = SingleLiveEvent<ViewEffect>()
 
     fun event(event: ViewEvent) {
         when (event) {
             is ViewEvent.ContactReceived -> getContactById(event.contactId)
             is ViewEvent.ContactPhoneClick -> viewEffect.value =
-                Event.SingleSuccess(ViewEffect.CallContactPhone(event.contactPhone))
+                ViewEffect.CallContactPhone(event.contactPhone)
         }
     }
 

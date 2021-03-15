@@ -17,6 +17,7 @@ import ru.marina.contactlistviewermvvm.domain.usecase.SearchContactsUseCase
 import ru.marina.contactlistviewermvvm.executor.MainThreadExecutor
 import ru.marina.contactlistviewermvvm.navigation.Screens
 import ru.marina.contactlistviewermvvm.ui.Event
+import ru.marina.contactlistviewermvvm.ui.SingleLiveEvent
 import ru.marina.contactlistviewermvvm.ui.ViewEffect
 import ru.marina.contactlistviewermvvm.ui.ViewEvent
 import ru.marina.contactlistviewermvvm.vm.base.BaseViewModel
@@ -32,15 +33,15 @@ class ContactsViewModel @Inject constructor(
     private val searchContactsUseCase: SearchContactsUseCase
 ) : BaseViewModel() {
 
-    val contactsState: MutableLiveData<Event<PagedList<Contact>>> = MutableLiveData()
-    val viewEffect: MutableLiveData<Event<ViewEffect>> = MutableLiveData()
+    val contactsState = MutableLiveData<Event<PagedList<Contact>>>()
+    val viewEffect = SingleLiveEvent<ViewEffect>()
 
     fun event(event: ViewEvent) {
         when (event) {
             is ViewEvent.ContactsLoad -> getContactsWithCache()
             is ViewEvent.SwipeToRefresh -> getContacts()
             is ViewEvent.ContactClick -> viewEffect.value =
-                Event.SingleSuccess(ViewEffect.NavigateToContactInfoScreen(event.contactId))
+                ViewEffect.NavigateToContactInfoScreen(event.contactId)
         }
     }
 

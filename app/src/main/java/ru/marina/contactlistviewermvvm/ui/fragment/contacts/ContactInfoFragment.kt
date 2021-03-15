@@ -1,13 +1,13 @@
 package ru.marina.contactlistviewermvvm.ui.fragment.contacts
 
 import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityCompat
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dagger.android.support.AndroidSupportInjection
 import ru.marina.contactlistviewermvvm.databinding.FragmentContactInfoBinding
@@ -26,8 +26,6 @@ import javax.inject.Inject
 class ContactInfoFragment : BaseFragment<FragmentContactInfoBinding>() {
 
     companion object {
-        private const val PERMISSION_CALL_PHONE = 1111
-
         private const val EXTRA_CONTACT_ID = "EXTRA_CONTACT_ID"
 
         fun getInstance(id: String) =
@@ -47,6 +45,15 @@ class ContactInfoFragment : BaseFragment<FragmentContactInfoBinding>() {
     private val viewModel: ContactInfoViewModel by viewModels {
         viewModelFactory
     }
+
+    private val requestPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                Intents.callPhone(requireContext(), contact.phone)
+            } else {
+                Intents.openPermissionsSetting(requireContext())
+            }
+        }
 
     lateinit var contact: Contact
 
@@ -75,9 +82,7 @@ class ContactInfoFragment : BaseFragment<FragmentContactInfoBinding>() {
 
         viewModel.viewEffect.observe(
             this,
-            EventObserver(
-                { trigger(it) }
-            )
+            Observer({ trigger(it) })
         )
     }
 
@@ -107,34 +112,7 @@ class ContactInfoFragment : BaseFragment<FragmentContactInfoBinding>() {
     private fun trigger(effect: ViewEffect) {
         when (effect) {
             is ViewEffect.CallContactPhone -> {
-                if (ActivityCompat.checkSelfPermission(
-                        requireActivity(),
-                        Manifest.permission.CALL_PHONE
-                    ) == PackageManager.PERMISSION_GRANTED
-                ) {
-                    Intents.callPhone(requireContext(), effect.contactPhone)
-                } else {
-                    requestPermissions(
-                        arrayOf(Manifest.permission.CALL_PHONE),
-                        PERMISSION_CALL_PHONE
-                    )
-                }
-            }
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        when (requestCode) {
-            PERMISSION_CALL_PHONE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Intents.callPhone(requireContext(), contact.phone)
-                } else {
-                    Intents.openPermissionsSetting(requireContext())
-                }
+                requestPermission.launch(Manifest.permission.CALL_PHONE)
             }
         }
     }

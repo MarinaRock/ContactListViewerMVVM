@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -82,9 +83,7 @@ class ContactsFragment : BaseFragment<FragmentContactsBinding>(),
 
         viewModel.viewEffect.observe(
             this,
-            EventObserver(
-                { trigger(it) }
-            )
+            Observer({ trigger(it) })
         )
     }
 
