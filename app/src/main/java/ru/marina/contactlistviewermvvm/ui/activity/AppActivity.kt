@@ -17,20 +17,19 @@ import javax.inject.Inject
 
 class AppActivity : AppCompatActivity(), HasAndroidInjector {
 
+    private lateinit var binding: ActivityAppBinding
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private val viewModel: AppViewModel by viewModels {
+        viewModelFactory
+    }
+
     @Inject
     lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Any>
 
     @Inject
     lateinit var navigatorHolder: NavigatorHolder
-
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
-
-    lateinit var binding: ActivityAppBinding
-
-    private val viewModel: AppViewModel by viewModels {
-        viewModelFactory
-    }
 
     private val navigator: Navigator = AppNavigator(this, R.id.fragmentContainer)
 

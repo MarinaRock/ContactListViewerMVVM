@@ -6,10 +6,10 @@ import ru.marina.contactlistviewermvvm.domain.model.Contact
 import ru.marina.contactlistviewermvvm.domain.repository.ContactsRepository
 import ru.marina.contactlistviewermvvm.domain.usecase.base.SingleUseCase
 
-class ContactByIdUseCase(
+class ContactUseCase(
     private val contactsRepository: ContactsRepository,
     schedulersProvider: SchedulersProvider
 ) : SingleUseCase<String, Contact>(schedulersProvider) {
 
-    override fun build(params: String): Single<Contact> = contactsRepository.getContactById(params)
+    override fun build(params: String): Single<Contact> = contactsRepository.getContact(params)
 }

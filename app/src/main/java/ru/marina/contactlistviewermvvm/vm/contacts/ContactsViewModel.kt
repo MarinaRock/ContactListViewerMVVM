@@ -11,9 +11,9 @@ import io.reactivex.observers.DisposableSingleObserver
 import ru.marina.contactlistviewermvvm.data.CONST.LIST_PAGE_SIZE
 import ru.marina.contactlistviewermvvm.domain.executor.SchedulersProvider
 import ru.marina.contactlistviewermvvm.domain.model.Contact
+import ru.marina.contactlistviewermvvm.domain.repository.ContactsRepository
 import ru.marina.contactlistviewermvvm.domain.usecase.ContactsUseCase
 import ru.marina.contactlistviewermvvm.domain.usecase.ContactsWithCacheUseCase
-import ru.marina.contactlistviewermvvm.domain.usecase.SearchContactsUseCase
 import ru.marina.contactlistviewermvvm.executor.MainThreadExecutor
 import ru.marina.contactlistviewermvvm.navigation.Screens
 import ru.marina.contactlistviewermvvm.ui.Event
@@ -28,9 +28,9 @@ import javax.inject.Inject
 class ContactsViewModel @Inject constructor(
     private val router: Router,
     private val schedulersProvider: SchedulersProvider,
+    private val contactsRepository: ContactsRepository,
     private val contactsWithCacheUseCase: ContactsWithCacheUseCase,
-    private val contactsUseCase: ContactsUseCase,
-    private val searchContactsUseCase: SearchContactsUseCase
+    private val contactsUseCase: ContactsUseCase
 ) : BaseViewModel() {
 
     val contactsState = MutableLiveData<Event<PagedList<Contact>>>()
@@ -110,7 +110,7 @@ class ContactsViewModel @Inject constructor(
                 return@map it
             }
             .switchMap {
-                searchContactsUseCase.execute(it)
+                contactsRepository.getSearchContacts(it).toObservable()
             }
             .subscribeOn(schedulersProvider.io())
             .observeOn(schedulersProvider.ui())

@@ -4,10 +4,9 @@ import dagger.Module
 import dagger.Provides
 import ru.marina.contactlistviewermvvm.domain.executor.SchedulersProvider
 import ru.marina.contactlistviewermvvm.domain.repository.ContactsRepository
-import ru.marina.contactlistviewermvvm.domain.usecase.ContactByIdUseCase
+import ru.marina.contactlistviewermvvm.domain.usecase.ContactUseCase
 import ru.marina.contactlistviewermvvm.domain.usecase.ContactsUseCase
 import ru.marina.contactlistviewermvvm.domain.usecase.ContactsWithCacheUseCase
-import ru.marina.contactlistviewermvvm.domain.usecase.SearchContactsUseCase
 import javax.inject.Singleton
 
 @Module(includes = [ViewModelModule::class])
@@ -29,14 +28,8 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun provideSearchContactsUseCase(
-        contactsRepository: ContactsRepository
-    ): SearchContactsUseCase = SearchContactsUseCase(contactsRepository)
-
-    @Singleton
-    @Provides
-    fun provideContactByIdUseCase(
+    fun provideContactUseCase(
         contactsRepository: ContactsRepository,
         schedulersProvider: SchedulersProvider
-    ): ContactByIdUseCase = ContactByIdUseCase(contactsRepository, schedulersProvider)
+    ): ContactUseCase = ContactUseCase(contactsRepository, schedulersProvider)
 }

@@ -1,5 +1,3 @@
 package ru.marina.contactlistviewermvvm.data.network
 
-import java.io.IOException
-
-class ServerException : IOException()
+class ServerException(val errorCode: Int) : Exception()

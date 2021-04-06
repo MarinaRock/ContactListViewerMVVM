@@ -32,14 +32,22 @@ class DataModule {
     @Singleton
     @Provides
     fun provideDb(app: Application): AppDb =
-        Room
-            .databaseBuilder(app, AppDb::class.java, "app.db")
+        Room.databaseBuilder(app, AppDb::class.java, "app.db")
             .fallbackToDestructiveMigration()
             .build()
 
     @Singleton
     @Provides
     fun provideContactsDao(appDb: AppDb): ContactsDao = appDb.contactsDao()
+
+    @Singleton
+    @Provides
+    fun provideOkHttpClient(app: Application): OkHttpClient =
+        OkHttpClient.Builder()
+            .addInterceptor(ErrorInterceptor(app))
+            .connectTimeout(30L, TimeUnit.SECONDS)
+            .readTimeout(30L, TimeUnit.SECONDS)
+            .build()
 
     @Singleton
     @Provides
@@ -54,37 +62,24 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun provideOkHttpClient(app: Application): OkHttpClient =
-        OkHttpClient.Builder()
-            .addInterceptor(ErrorInterceptor(app))
-            .connectTimeout(30L, TimeUnit.SECONDS)
-            .readTimeout(30L, TimeUnit.SECONDS)
-            .build()
+    fun provideContactsMapper(): ContactsMapper = ContactsMapperImpl()
 
     @Singleton
     @Provides
     fun provideContactsRemote(
         service: ApiService,
         contactsMapper: ContactsMapper
-    ): ContactsRemote {
-        return ContactsRemoteImpl(service, contactsMapper)
-    }
-
-    @Provides
-    fun provideContactsMapper(): ContactsMapper {
-        return ContactsMapperImpl()
-    }
+    ): ContactsRemote = ContactsRemoteImpl(service, contactsMapper)
 
     @Singleton
     @Provides
     fun provideContactsRepository(
+        contactsMapper: ContactsMapper,
         contactsRemote: ContactsRemote,
         contactsDao: ContactsDao,
-        contactsMapper: ContactsMapper,
         prefs: Prefs
-    ): ContactsRepository {
-        return ContactsRepositoryImpl(contactsRemote, contactsDao, contactsMapper, prefs)
-    }
+    ): ContactsRepository =
+        ContactsRepositoryImpl(contactsMapper, contactsRemote, contactsDao, prefs)
 
     @Singleton
     @Provides

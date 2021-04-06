@@ -36,15 +36,14 @@ class ContactsFragment : BaseFragment<FragmentContactsBinding>(),
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-
     private val viewModel: ContactsViewModel by viewModels {
         viewModelFactory
     }
 
     private lateinit var adapter: ContactsAdapter
 
-    private var isContactsReloaded = true
     private var query = ""
+    private var isContactsReloaded = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidSupportInjection.inject(this)
@@ -80,7 +79,6 @@ class ContactsFragment : BaseFragment<FragmentContactsBinding>(),
                     startProgress()
                 })
         )
-
         viewModel.viewEffect.observe(
             this,
             Observer({ trigger(it) })

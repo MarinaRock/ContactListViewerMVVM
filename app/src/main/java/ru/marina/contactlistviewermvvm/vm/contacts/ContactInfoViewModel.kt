@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import com.github.terrakok.cicerone.Router
 import io.reactivex.observers.DisposableSingleObserver
 import ru.marina.contactlistviewermvvm.domain.model.Contact
-import ru.marina.contactlistviewermvvm.domain.usecase.ContactByIdUseCase
+import ru.marina.contactlistviewermvvm.domain.usecase.ContactUseCase
 import ru.marina.contactlistviewermvvm.ui.Event
 import ru.marina.contactlistviewermvvm.ui.SingleLiveEvent
 import ru.marina.contactlistviewermvvm.ui.ViewEffect
@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 class ContactInfoViewModel @Inject constructor(
     private val router: Router,
-    private val contactByIdUseCase: ContactByIdUseCase,
+    private val contactUseCase: ContactUseCase,
 ) : BaseViewModel() {
 
     val contactState = MutableLiveData<Event<Contact>>()
@@ -22,14 +22,14 @@ class ContactInfoViewModel @Inject constructor(
 
     fun event(event: ViewEvent) {
         when (event) {
-            is ViewEvent.ContactReceived -> getContactById(event.contactId)
+            is ViewEvent.ContactReceived -> getContact(event.contactId)
             is ViewEvent.ContactPhoneClick -> viewEffect.value =
                 ViewEffect.CallContactPhone(event.contactPhone)
         }
     }
 
-    private fun getContactById(id: String) {
-        contactByIdUseCase.execute(id, object : DisposableSingleObserver<Contact>() {
+    private fun getContact(id: String) {
+        contactUseCase.execute(id, object : DisposableSingleObserver<Contact>() {
             override fun onSuccess(t: Contact) {
                 contactState.value = Event.Success(t)
             }

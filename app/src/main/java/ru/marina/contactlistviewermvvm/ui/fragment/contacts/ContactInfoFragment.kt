@@ -41,7 +41,6 @@ class ContactInfoFragment : BaseFragment<FragmentContactInfoBinding>() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-
     private val viewModel: ContactInfoViewModel by viewModels {
         viewModelFactory
     }
@@ -55,7 +54,7 @@ class ContactInfoFragment : BaseFragment<FragmentContactInfoBinding>() {
             }
         }
 
-    lateinit var contact: Contact
+    private lateinit var contact: Contact
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidSupportInjection.inject(this)
@@ -79,7 +78,6 @@ class ContactInfoFragment : BaseFragment<FragmentContactInfoBinding>() {
                     showSnackBar(getMsgFromError(it))
                 })
         )
-
         viewModel.viewEffect.observe(
             this,
             Observer({ trigger(it) })
