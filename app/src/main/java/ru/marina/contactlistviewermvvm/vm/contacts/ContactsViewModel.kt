@@ -1,13 +1,13 @@
 package ru.marina.contactlistviewermvvm.vm.contacts
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
 import androidx.paging.PositionalDataSource
 import com.github.terrakok.cicerone.Router
-import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
-import io.reactivex.observers.DisposableObserver
+import io.reactivex.Flowable
 import io.reactivex.observers.DisposableSingleObserver
+import io.reactivex.subscribers.DisposableSubscriber
 import ru.marina.contactlistviewermvvm.data.CONST.LIST_PAGE_SIZE
 import ru.marina.contactlistviewermvvm.domain.executor.SchedulersProvider
 import ru.marina.contactlistviewermvvm.domain.model.Contact
@@ -33,35 +33,39 @@ class ContactsViewModel @Inject constructor(
     private val contactsUseCase: ContactsUseCase
 ) : BaseViewModel() {
 
-    val contactsState = MutableLiveData<Event<PagedList<Contact>>>()
-    val viewEffect = SingleLiveEvent<ViewEffect>()
+    private val _contactsState = MutableLiveData<Event<PagedList<Contact>>>()
+    private val _viewEffect = SingleLiveEvent<ViewEffect>()
+
+    val contactsState: LiveData<Event<PagedList<Contact>>> = _contactsState
+    val viewEffect: LiveData<ViewEffect> = _viewEffect
 
     fun event(event: ViewEvent) {
         when (event) {
             is ViewEvent.ContactsLoad -> getContactsWithCache()
             is ViewEvent.SwipeToRefresh -> getContacts()
-            is ViewEvent.ContactClick -> viewEffect.value =
+            is ViewEvent.ContactClick -> _viewEffect.value =
                 ViewEffect.NavigateToContactInfoScreen(event.contactId)
         }
     }
 
     private fun getContactsWithCache() {
-        contactsState.value = Event.Loading
+        _contactsState.value = Event.Loading
         contactsWithCacheUseCase.execute(Any(), getContactsSingleObserver())
+            .disposeLater()
     }
 
     private fun getContacts() {
-        contactsState.value = Event.Loading
+        _contactsState.value = Event.Loading
         contactsUseCase.execute(Any(), getContactsSingleObserver())
     }
 
     private fun getContactsSingleObserver() = object : DisposableSingleObserver<List<Contact>>() {
         override fun onSuccess(t: List<Contact>) {
-            contactsState.value = Event.Success(getPagingContactsList(t))
+            _contactsState.value = Event.Success(getPagingContactsList(t))
         }
 
         override fun onError(e: Throwable) {
-            contactsState.value = Event.SingleError(e)
+            _contactsState.value = Event.SingleError(e)
         }
     }
 
@@ -101,32 +105,32 @@ class ContactsViewModel @Inject constructor(
             .build()
     }
 
-    fun searchContacts(observable: Observable<String>) {
-        val disposable: Disposable = observable
+    fun searchContacts(flowable: Flowable<String>) {
+        flowable
             .debounce(300, TimeUnit.MILLISECONDS)
             .distinctUntilChanged()
             .map {
-                contactsState.postValue(Event.Loading)
+                _contactsState.postValue(Event.Loading)
                 return@map it
             }
             .switchMap {
-                contactsRepository.getSearchContacts(it).toObservable()
+                contactsRepository.getSearchContacts(it).toFlowable()
             }
             .subscribeOn(schedulersProvider.io())
             .observeOn(schedulersProvider.ui())
-            .subscribeWith(object : DisposableObserver<List<Contact>>() {
+            .subscribeWith(object : DisposableSubscriber<List<Contact>>() {
                 override fun onNext(t: List<Contact>) {
-                    contactsState.value = Event.Success(getPagingContactsList(t))
+                    _contactsState.value = Event.Success(getPagingContactsList(t))
                 }
 
                 override fun onComplete() {
                 }
 
                 override fun onError(e: Throwable) {
-                    contactsState.value = Event.SingleError(e)
+                    _contactsState.value = Event.SingleError(e)
                 }
             })
-        compositeDisposable.add(disposable)
+            .disposeLater()
     }
 
     fun showContactInfoScreen(contactId: String) {

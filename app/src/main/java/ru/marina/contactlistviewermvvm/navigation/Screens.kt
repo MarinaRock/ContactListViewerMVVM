@@ -6,12 +6,11 @@ import ru.marina.contactlistviewermvvm.ui.fragment.contacts.ContactsFragment
 
 object Screens {
 
-    fun ContactsScreen() = FragmentScreen(ContactsFragment::class.java.name) {
+    fun ContactsScreen() = FragmentScreen {
         ContactsFragment()
     }
 
-    fun ContactInfoScreen(contactId: String) =
-        FragmentScreen(ContactInfoFragment::class.java.name) {
-            ContactInfoFragment.getInstance(contactId)
-        }
+    fun ContactInfoScreen(contactId: String) = FragmentScreen {
+        ContactInfoFragment.getInstance(contactId)
+    }
 }

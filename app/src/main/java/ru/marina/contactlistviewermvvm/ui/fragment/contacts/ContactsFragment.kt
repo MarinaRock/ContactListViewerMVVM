@@ -12,7 +12,8 @@ import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import dagger.android.support.AndroidSupportInjection
-import io.reactivex.Observable
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import ru.marina.contactlistviewermvvm.databinding.FragmentContactsBinding
 import ru.marina.contactlistviewermvvm.domain.model.Contact
 import ru.marina.contactlistviewermvvm.ui.EventObserver
@@ -102,7 +103,7 @@ class ContactsFragment : BaseFragment<FragmentContactsBinding>(),
             binding.searchView.findViewById(androidx.appcompat.R.id.search_src_text)
         searchViewText.isSaveEnabled = false
         binding.searchView.setQuery(query, false)
-        val observable: Observable<String> = Observable.create { emitter ->
+        val flowable: Flowable<String> = Flowable.create({ emitter ->
             binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     if (query != null) {
@@ -118,8 +119,8 @@ class ContactsFragment : BaseFragment<FragmentContactsBinding>(),
                     return true
                 }
             })
-        }
-        viewModel.searchContacts(observable)
+        }, BackpressureStrategy.LATEST)
+        viewModel.searchContacts(flowable)
     }
 
     private fun render(state: PagedList<Contact>) {
