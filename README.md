@@ -19,7 +19,7 @@
 
 # Технологии
 - Kotlin
-- Архитектура: MVVM, Clean Architecture, Single Activity, Unidirectional Data Flow
+- Архитектура: MVVM + MVI, Clean Architecture, Single Activity
 - View Binding
 - Cicerone
 - Room
