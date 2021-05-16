@@ -60,7 +60,7 @@ class ContactInfoFragment : BaseFragment<FragmentContactInfoBinding>() {
         AndroidSupportInjection.inject(this)
         super.onCreate(savedInstanceState)
 
-        val contactId: String = arguments?.getString(EXTRA_CONTACT_ID, "") ?: ""
+        val contactId = arguments?.getString(EXTRA_CONTACT_ID, "") ?: ""
 
         initObservers()
 
@@ -97,7 +97,8 @@ class ContactInfoFragment : BaseFragment<FragmentContactInfoBinding>() {
     private fun render(state: Contact) {
         binding.contactNameTextView.text = state.name
         binding.contactPhoneTextView.text = state.phone
-        binding.contactTemperamentTextView.text = state.temperament.name.capitalize()
+        binding.contactTemperamentTextView.text =
+            state.temperament.name.replaceFirstChar { it.uppercase() }
         val period = DateUtils.getStandardDate(state.educationPeriod.start) +
                 " - " +
                 DateUtils.getStandardDate(state.educationPeriod.end)

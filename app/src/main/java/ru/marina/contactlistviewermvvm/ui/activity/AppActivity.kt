@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.github.terrakok.cicerone.Navigator
 import com.github.terrakok.cicerone.NavigatorHolder
 import com.github.terrakok.cicerone.androidx.AppNavigator
 import dagger.android.AndroidInjection
@@ -31,7 +30,7 @@ class AppActivity : AppCompatActivity(), HasAndroidInjector {
     @Inject
     lateinit var navigatorHolder: NavigatorHolder
 
-    private val navigator: Navigator = AppNavigator(this, R.id.fragmentContainer)
+    private val navigator = AppNavigator(this, R.id.fragmentContainer)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)

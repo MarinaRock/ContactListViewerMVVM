@@ -1,4 +1,4 @@
-package ru.marina.contactlistviewermvvm
+package ru.marina.contactlistviewermvvm.data
 
 import org.junit.Test
 
